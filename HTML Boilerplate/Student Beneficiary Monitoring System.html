@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Beneficiary Monitoring System</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --border:#e2e4e9; --text:#1a1d23; --muted:#6b7280;
+  --accent:#2563eb; --accent-hover:#1d4ed8; --danger:#dc2626; --good:#16a34a; --warn:#d97706;
+  box-sizing:border-box;
+  padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171c; --card:#1e2128; --border:#2e323b; --text:#e8e9ec; --muted:#9aa0ab;
+    --accent:#3b82f6; --accent-hover:#60a5fa;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171c; --card:#1e2128; --border:#2e323b; --text:#e8e9ec; --muted:#9aa0ab;
+  --accent:#3b82f6; --accent-hover:#60a5fa;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{padding:16px;max-width:1100px;margin:0 auto;}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input,select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:14px}
+input[type=text],input[type=search]{flex:1;min-width:140px}
+button{background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:14px;cursor:pointer}
+button:hover{background:var(--accent-hover)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+button.danger{background:var(--danger)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:90px}
+.stat b{display:block;font-size:20px}
+.stat span{color:var(--muted);font-size:12px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+.badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.active{background:#16a34a22;color:var(--good)}
+.badge.pending{background:#d9770622;color:var(--warn)}
+.badge.inactive{background:#dc262622;color:var(--danger)}
+.actions{display:flex;gap:6px}
+.actions button{padding:5px 9px;font-size:12px}
+.modal-bg{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
+.modal h2{margin-top:0;font-size:16px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<h1>🎓 Student Beneficiary Monitoring System</h1>
+<div class="sub">Track scholarship/aid beneficiaries, status, and disbursements</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="toolbar">
+  <input type="search" id="search" placeholder="Search name or ID...">
+  <select id="filterStatus">
+    <option value="">All Status</option>
+    <option value="Active">Active</option>
+    <option value="Pending">Pending</option>
+    <option value="Inactive">Inactive</option>
+  </select>
+  <button onclick="openModal()">+ Add Beneficiary</button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Program</th><th>Year Level</th><th>Status</th><th>Amount</th><th>Last Update</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="emptyMsg" style="display:none">No beneficiaries yet. Click "Add Beneficiary" to start.</div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitle">Add Beneficiary</h2>
+    <div class="field"><label>Student ID</label><input id="f_id" type="text" placeholder="2023-00123"></div>
+    <div class="field"><label>Full Name</label><input id="f_name" type="text" placeholder="Juan Dela Cruz"></div>
+    <div class="field"><label>Program / Scholarship</label><input id="f_program" type="text" placeholder="DOST-SEI / CHED TDP / LGU Grant"></div>
+    <div class="field"><label>Year Level</label><input id="f_year" type="text" placeholder="3rd Year"></div>
+    <div class="field"><label>Status</label>
+      <select id="f_status">
+        <option>Active</option><option>Pending</option><option>Inactive</option>
+      </select>
+    </div>
+    <div class="field"><label>Amount (₱)</label><input id="f_amount" type="text" placeholder="10000"></div>
+    <div class="field"><label>Notes</label><input id="f_notes" type="text" placeholder="Optional remarks"></div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeModal()">Cancel</button>
+      <button onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let data = [];
+let editingId = null;
+let db = null;
+
+async function initDB(){
+  try{
+    db = await claude.use("db");
+  }catch(e){ db = null; }
+  await loadData();
+}
+
+async function loadData(){
+  if(db){
+    try{
+      const snap = await db.collection("beneficiaries").get();
+      data = snap.docs.map(d => ({...d.data, _docId: d.id}));
+    }catch(e){ data = []; }
+  }
+  render();
+}
+
+async function persist(item){
+  if(!db) return;
+  try{
+    if(item._docId){
+      await db.doc("beneficiaries/"+item._docId).set(item);
+    } else {
+      const ref = await db.collection("beneficiaries").add(item);
+      item._docId = ref.id;
+    }
+  }catch(e){ console.error("save failed", e); }
+}
+
+async function removeItem(item){
+  if(!db) return;
+  try{ await db.doc("beneficiaries/"+item._docId).delete(); }catch(e){}
+}
+
+function render(){
+  const search = document.getElementById('search').value.toLowerCase();
+  const statusFilter = document.getElementById('filterStatus').value;
+  let filtered = data.filter(d=>{
+    const matchesSearch = !search || (d.name||'').toLowerCase().includes(search) || (d.id||'').toLowerCase().includes(search);
+    const matchesStatus = !statusFilter || d.status===statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const rows = document.getElementById('rows');
+  const emptyMsg = document.getElementById('emptyMsg');
+  rows.innerHTML = '';
+  emptyMsg.style.display = filtered.length ? 'none':'block';
+
+  filtered.forEach(d=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${esc(d.id)}</td>
+      <td>${esc(d.name)}</td>
+      <td>${esc(d.program)}</td>
+      <td>${esc(d.year)}</td>
+      <td><span class="badge ${d.status.toLowerCase()}">${esc(d.status)}</span></td>
+      <td>${d.amount ? '₱'+Number(d.amount).toLocaleString() : '-'}</td>
+      <td>${d.updated ? new Date(d.updated).toLocaleDateString() : '-'}</td>
+      <td class="actions">
+        <button class="secondary" onclick="editItem('${d._docId}')">Edit</button>
+        <button class="danger" onclick="deleteItem('${d._docId}')">Del</button>
+      </td>`;
+    rows.appendChild(tr);
+  });
+
+  renderStats();
+}
+
+function renderStats(){
+  const total = data.length;
+  const active = data.filter(d=>d.status==='Active').length;
+  const pending = data.filter(d=>d.status==='Pending').length;
+  const inactive = data.filter(d=>d.status==='Inactive').length;
+  const totalAmount = data.reduce((s,d)=>s+(Number(d.amount)||0),0);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${total}</b><span>Total</span></div>
+    <div class="stat"><b style="color:var(--good)">${active}</b><span>Active</span></div>
+    <div class="stat"><b style="color:var(--warn)">${pending}</b><span>Pending</span></div>
+    <div class="stat"><b style="color:var(--danger)">${inactive}</b><span>Inactive</span></div>
+    <div class="stat"><b>₱${totalAmount.toLocaleString()}</b><span>Total Disbursed</span></div>
+  `;
+}
+
+function esc(s){
+  return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openModal(){
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Beneficiary';
+  ['f_id','f_name','f_program','f_year','f_amount','f_notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_status').value = 'Active';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function editItem(docId){
+  const item = data.find(d=>d._docId===docId);
+  if(!item) return;
+  editingId = docId;
+  document.getElementById('modalTitle').textContent = 'Edit Beneficiary';
+  document.getElementById('f_id').value = item.id||'';
+  document.getElementById('f_name').value = item.name||'';
+  document.getElementById('f_program').value = item.program||'';
+  document.getElementById('f_year').value = item.year||'';
+  document.getElementById('f_status').value = item.status||'Active';
+  document.getElementById('f_amount').value = item.amount||'';
+  document.getElementById('f_notes').value = item.notes||'';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('open');
+}
+
+async function save(){
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ alert('Name is required'); return; }
+  const item = {
+    id: document.getElementById('f_id').value.trim(),
+    name: name,
+    program: document.getElementById('f_program').value.trim(),
+    year: document.getElementById('f_year').value.trim(),
+    status: document.getElementById('f_status').value,
+    amount: document.getElementById('f_amount').value.trim(),
+    notes: document.getElementById('f_notes').value.trim(),
+    updated: Date.now()
+  };
+
+  if(editingId){
+    const existing = data.find(d=>d._docId===editingId);
+    item._docId = editingId;
+    Object.assign(existing, item);
+    await persist(existing);
+  } else {
+    data.push(item);
+    await persist(item);
+  }
+  closeModal();
+  render();
+}
+
+async function deleteItem(docId){
+  if(!confirm('Delete this beneficiary?')) return;
+  const item = data.find(d=>d._docId===docId);
+  data = data.filter(d=>d._docId!==docId);
+  await removeItem(item);
+  render();
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filterStatus').addEventListener('change', render);
+
+initDB();
+</script>
+</body>
+</html>
