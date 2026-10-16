@@ -4,10 +4,14 @@ import java.util.ArrayList;
 public class FacultyAdopter extends Person{
     private String department;
     private static ArrayList<FacultyAdopter> facultyList = new ArrayList<>();  //list of faculty
-
+    
     FacultyAdopter(String id, String name, String contactNumber, String department){
         super(id, name, contactNumber);
         this.department = department;
+        facultyList.add(this);
+    }
+    FacultyAdopter(String id, String name, String contactNumber){
+        super(id, name, contactNumber);
         facultyList.add(this);
     }
 

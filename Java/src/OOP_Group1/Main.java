@@ -1,7 +1,6 @@
 package OOP_Group1;
 
 import java.util.Date;
-import OOP_Group1.FacultyAdopter;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,10 +16,12 @@ public class Main {
 
         FacultyAdopter adopter = new FacultyAdopter("ADOPT-123", "Jeff Bezos", "09123232", "Management");
         sb.viewAdopter(adopter);
+        
         Coordinator coordinator = new Coordinator("COOR-123", "Sir shun", "BSIT");
-        AdoptionAssignment as = new AdoptionAssignment(adopter.getId(), sb.getId());
+
+        AdoptionAssignment as = new AdoptionAssignment(adopter.getId(), sb.getId(), " ");
         as.activate(date);
-        System.out.println(as.getAssignmentId());
+        System.out.println("Assignment ID :  " + as.getAssignmentId());
     }   
 }
     

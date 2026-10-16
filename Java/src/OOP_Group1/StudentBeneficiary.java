@@ -3,7 +3,10 @@ package OOP_Group1;
 import java.util.ArrayList;
 
 public  class StudentBeneficiary extends Person{
-    private String yearLevel, course, address, currentStatus;
+    private String yearLevel;
+    private String course;
+    private String address;
+    private String currentStatus;
     private static ArrayList<StudentBeneficiary> studentList = new ArrayList<>(); //list of student
 
     StudentBeneficiary(

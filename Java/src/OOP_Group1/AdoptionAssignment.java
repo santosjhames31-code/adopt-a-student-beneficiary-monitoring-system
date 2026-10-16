@@ -3,17 +3,18 @@ import java.util.Date;
 
 class AdoptionAssignment{
 
-    private String assignmentId; //genarated from coor
+    private Coordinator c; //genarated from coor
+    private String assignmentId;
     private String adopterId;    
     private String beneficiaryId;
     private Date startDate;
     private Date endDate;
     private String assignmentStatus;
 
-    AdoptionAssignment(String adopterId, String beneficiaryId, String assignmentId){
+    AdoptionAssignment(String adopterId, String beneficiaryId){
         this.adopterId = adopterId;
         this.beneficiaryId = beneficiaryId;
-        this.assignmentId = assignmentId;
+        assignmentId = c.getId();
     }
 
     public String getAssignmentId(){
