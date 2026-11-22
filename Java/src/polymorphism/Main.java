@@ -1,24 +1,27 @@
 package polymorphism;
-
+import java.util.ArrayList;
 public class Main {
     
     public static void main (String[] args){
         
-        City smb = new SantaMaria();
-        City mal = new Malolos();
-        City mar = new Marilao();
-       
-        smb.cityName();
-        smb.population();
-        System.out.println("");
-        
-        mal.cityName();
-        mal.population();
-        System.out.println("");
+        // ArrayList<City> c = new ArrayList<>();
 
-        mar.cityName();
-        mar.population();
+        // c.add(new SantaMaria());
+        // c.add(new Marilao());
+        // c.add(new Malolos());
+
+        // for(City city : c){
+        //     city.cityName();
+        //     city.population();
+        //     System.out.println("");
+        // }    
+
+        City c = new City();
         
+        if(c instanceof SantaMaria s){
+            s.cityName();
+        }
+
     }
     
 }

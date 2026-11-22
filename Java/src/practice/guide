@@ -1,0 +1,6 @@
+Interface PaymentMethod with boolean pay(double amount)
+Abstract class OnlinePayment implements PaymentMethod with a concrete validateAccount() and an abstract processTransaction()
+Subclasses: GCash, CreditCard, Cash
+Store all of them in a PaymentMethod[] (upcasting)
+Loop and call pay(500) on each (polymorphism)
+If the object is a GCash, downcast and call a GCash-only method like sendReceiptToMobile() (downcasting)

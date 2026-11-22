@@ -1,10 +1,12 @@
 package abstraction;
 
-public abstract class Vehicles {
+public  class Vehicles {
     
     String vehicleType;
     int numberOfWheels;
     
-    abstract void details();
+    void details(){
+        System.out.println("TO be overriden");
+    };
     
 }

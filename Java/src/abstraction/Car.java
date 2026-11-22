@@ -8,6 +8,7 @@ public class Car extends Vehicles {
     }
 
      void details(){
+        System.out.println("Car");
         System.out.println("Vehicle Type  : " + vehicleType);
         System.out.println("Wheels        : " + numberOfWheels);
     }

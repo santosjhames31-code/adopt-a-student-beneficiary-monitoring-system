@@ -8,6 +8,7 @@ public class Motorcycle extends Vehicles{
     }
     
     void details(){
+        System.out.println("Motor");
         System.out.println("Vehicle Type  : " + vehicleType);
         System.out.println("Wheels        : " + numberOfWheels);
     }
